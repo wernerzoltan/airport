@@ -59,7 +59,7 @@ public class AirportController {
 											//a @Valid érvényre juttatja a DTO-ban létrehozott szabályokat, pl. a size-ot
 		
 		return airportService.createAirport(newAirport);
-		//ablak
+	
 		//insomnia-ban ha POST-ot létrehozunk, akkor JSON-ban kiadhatjuk pl. a következőt:
 		//{
 		//	"name": "Szarajevó"

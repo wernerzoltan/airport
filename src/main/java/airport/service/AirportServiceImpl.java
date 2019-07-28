@@ -3,6 +3,7 @@ package airport.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -81,8 +82,11 @@ public class AirportServiceImpl implements AirportService {
 	//ID alapján adja vissza az Aiportokat
 	@Override
 	public Optional<AirportDTO> getAirportById(Long id) {
+				
+		Optional<AirportDTO> optional = airports.stream().filter(a -> a.getId().equals(id)).findAny();
+		if(optional == null) //ha nincs ilyen érték, akkor az alábbi szöveget irjuk ki
+			throw new NoSuchElementException("Nincs ilyen ID: " + id);
+		return optional;
 		
-		return airports.stream().filter(a -> a.getId().equals(id)).findAny();
-	
 	}
 }

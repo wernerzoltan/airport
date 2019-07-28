@@ -80,13 +80,15 @@ public class AirportController {
     	Optional<AirportDTO> optional = airportService.getAirportById(id);
 		//az Optional-lal azt jelezzük, hogy nem biztos, hogy lesz olyan ID, amit megadunk
 		
+    	//erre nincs szükség akkor, ha külön osztályt készitünk az ExceptionHandler-re
+//    	if(optional == null) { //ha nincs ID, akkor NOT FOUND-dal tér vissza
+//    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//    	} else { //ellenkező esetben átadjuk az optional törzsét
+//    		return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
+//    	}
+//    	
     	
-    	if(optional == null) { //ha nincs ID, akkor NOT FOUND-dal tér vissza
-    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    	} else { //ellenkező esetben átadjuk az optional törzsét
-    		return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
-    	}
-    	
+    	return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
     
 		
 	}

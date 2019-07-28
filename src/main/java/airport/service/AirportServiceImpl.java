@@ -3,6 +3,7 @@ package airport.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -25,8 +26,8 @@ public class AirportServiceImpl implements AirportService {
 	public void init() {
 		//1. lépésben: itt hozzáadunk kezdeti adatokat a listához
 		airports.add(new AirportDTO(1L, LocalDateTime.now(), LocalDateTime.now(), "Budapest", "BUD"));
-		airports.add(new AirportDTO(1L, LocalDateTime.now(), LocalDateTime.now(), "Praha", "PRA"));
-		airports.add(new AirportDTO(1L, LocalDateTime.now(), LocalDateTime.now(), "Braitslava", "BRA"));
+		airports.add(new AirportDTO(2L, LocalDateTime.now(), LocalDateTime.now(), "Praha", "PRA"));
+		airports.add(new AirportDTO(3L, LocalDateTime.now(), LocalDateTime.now(), "Braitslava", "BRA"));
 				
 	}
 
@@ -74,5 +75,14 @@ public class AirportServiceImpl implements AirportService {
 		airports.add(airport);
 		
 		return airport;
+	}
+
+	
+	//ID alapján adja vissza az Aiportokat
+	@Override
+	public Optional<AirportDTO> getAirportById(Long id) {
+		
+		return airports.stream().filter(a -> a.getId().equals(id)).findAny();
+	
 	}
 }

@@ -7,6 +7,8 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -44,9 +46,9 @@ public class AirportControllerIT {
 		AirportDTO result = client.post() //a client-be fogunk postolni
 			.uri("/airports") //erre az uri-ra postolunk
 			.syncBody(newAirport) //itt tudunk átadni egy törzset, azaz létrehozunk egy új aiportot
-			.accept(MediaType.APPLICATION_JSON) //ezzel a header-t állituk be
+			.accept(MediaType.APPLICATION_JSON_UTF8) //ezzel a header-t állituk be
 			.exchange().expectStatus().isOk() //itt azt várjuk, hogy OK legyen a státusza a válasznak
-			.expectHeader().contentType(MediaType.APPLICATION_JSON) //azt várjuk, hogy a válasz header-je legyen JSON
+			.expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8) //azt várjuk, hogy a válasz header-je legyen JSON
 			.expectBody(AirportDTO.class) //azt várjuk, hogy a válasz body airportDTO tipusú lesz
 			.returnResult().getResponseBody(); //ezzel megkapjuk a választ, ami az AiportDTO lesz
 		
@@ -57,8 +59,30 @@ public class AirportControllerIT {
 		assertEquals(newAirport.getIata(), result.getIata()); //az elküldött getIata egyezzen meg a visszakapott getIata-el		
 		assertNotNull(result.getCreatedAt());
 		assertNotNull(result.getModifiedAt());
+			
+	}
+	
+	//az alábbi tesztesetben invalid adatokkal tesztelünk, tehát hibás lefutást várunk
+	
+	@ParameterizedTest //ezzel egy tömbbe fel tudjuk sorolni a tesztelendő értékeket, és nem kell for ciklust futtatni a különböző értékekre
+	@ValueSource(strings = {"", "BU", "BUDA"})
+	void invalidAirportCannotBeCreated(String iata) {
 		
+		NewAirportDTO newAirport = new NewAirportDTO("Praha Airport", iata);
+		
+		client.post() //a client-be fogunk postolni
+		.uri("/airports") //erre az uri-ra postolunk
+		.syncBody(newAirport) //itt tudunk átadni egy törzset, azaz létrehozunk egy új aiportot
+		.accept(MediaType.APPLICATION_JSON_UTF8) //ezzel a header-t állituk be
+		.exchange()
+		.expectStatus()
+		.isBadRequest(); //azt várjuk, hogy a válasz rossz legyen
 		
 	}
+	
+	
+	
+	
+	
 	
 }

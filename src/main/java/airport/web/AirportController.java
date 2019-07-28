@@ -1,11 +1,15 @@
 package airport.web;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +68,26 @@ public class AirportController {
 		//{
 		//	"name": "Szarajevó"
 		//}
+		
+	}
+	
+	//az Airportot ID alapján kérdezzük le
+	//a ResponseEntitiy-vel nem csak a törzset tudjuk megkapni, hanem a header-t és státuszkódot is
+    @GetMapping("/{id}")
+	ResponseEntity<AirportDTO> getAirportById(@PathVariable Long id) {
+    					//a @PathVariable-vel az id-t tudjuk átadni
+		
+    	Optional<AirportDTO> optional = airportService.getAirportById(id);
+		//az Optional-lal azt jelezzük, hogy nem biztos, hogy lesz olyan ID, amit megadunk
+		
+    	
+    	if(optional == null) { //ha nincs ID, akkor NOT FOUND-dal tér vissza
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    	} else { //ellenkező esetben átadjuk az optional törzsét
+    		return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
+    	}
+    	
+    
 		
 	}
 	

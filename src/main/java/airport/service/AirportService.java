@@ -17,7 +17,7 @@ public interface AirportService  {
 	
 	Airport createAirport(NewAirportDTO newAirport);
 
-	Optional<Airport> getAirportById(Long id);
+	Airport getAirportById(Long id);
 	
 	
 	

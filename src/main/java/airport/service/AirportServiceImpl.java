@@ -137,15 +137,15 @@ public class AirportServiceImpl implements AirportService {
 	}
 
 	
-	//ID alapján adja vissza az Aiportokat
+	//ID alapján adja vissza az Airportokat
 	@Override
-	public Optional<Airport> getAirportById(Long id) {
+	public Airport getAirportById(Long id) {
 				
-		Optional<Airport> optional = airportRepository.findById(id);
+		Optional<Airport> airportOptional = airportRepository.findById(id);
 		
-		if(optional == null) //ha nincs ilyen érték, akkor az alábbi szöveget irjuk ki
-			throw new NoSuchElementException("Nincs ilyen ID: " + id);
-		return optional;
+		if(airportOptional == null) //ha nincs ilyen érték, akkor az alábbi szöveget irjuk ki
+			throw new NoSuchElementException(String.format("Nincs ilyen ID: %id", id));
+		return airportOptional.get();
 		
 	}
 }

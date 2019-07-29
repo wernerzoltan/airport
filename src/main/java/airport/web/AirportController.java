@@ -2,6 +2,7 @@ package airport.web;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import airport.model.Airport;
 import airport.service.AirportService;
 import airport.web.dto.airport.AirportDTO;
 import airport.web.dto.airport.NewAirportDTO;
@@ -44,54 +46,95 @@ public class AirportController {
 	//	
 	//}
 
-	//2. lépésben a swagger-ben lévő extra lekérdezéseket hozzuk létre, 
-	//GET-nél iata, page, size-t hozzuk létre
-	@GetMapping
-	List<AirportDTO> getAirports(@RequestParam(name = "iata", required = false) String iata, Pageable pageable) { 
-		//iata nevű argumentumot várunk, amit a String iata argumentumba kell betenni
-		//pageable: paginálva, azaz oldalakra bontva tudjuk átadni az argumentum adatait
-		
-		//return Collections.emptyList(); //egy üres listát ad vissza a get kérésre
-		return airportService.getAirports(iata, pageable); //itt hívjuk meg a service réteg metódusát
-		
-	}
-	
-	//New Airport-hoz hozzuk létre, lásd insomnia oldalon a POST airports részt, POST kérést hozunk létre
-	@PostMapping
-	AirportDTO createAirport(@RequestBody @Valid NewAirportDTO newAirport) { //AirportDTO-t ad vissza, paraméterként pedig NewAirportDTO-t vár
-											//a @RequestBody annotációval aztjelezzük, hogy a kérés törzséből szedje ki az új airport-ot
-											//a @Valid érvényre juttatja a DTO-ban létrehozott szabályokat, pl. a size-ot
-		
-		return airportService.createAirport(newAirport);
-	
-		//insomnia-ban ha POST-ot létrehozunk, akkor JSON-ban kiadhatjuk pl. a következőt:
-		//{
-		//	"name": "Szarajevó"
-		//}
-		
-	}
-	
-	//az Airportot ID alapján kérdezzük le
-	//a ResponseEntitiy-vel nem csak a törzset tudjuk megkapni, hanem a header-t és státuszkódot is
-    @GetMapping("/{id}")
-	ResponseEntity<AirportDTO> getAirportById(@PathVariable Long id) {
-    					//a @PathVariable-vel az id-t tudjuk átadni
-		
-    	Optional<AirportDTO> optional = airportService.getAirportById(id);
-		//az Optional-lal azt jelezzük, hogy nem biztos, hogy lesz olyan ID, amit megadunk
-		
-    	//erre nincs szükség akkor, ha külön osztályt készitünk az ExceptionHandler-re
-//    	if(optional == null) { //ha nincs ID, akkor NOT FOUND-dal tér vissza
-//    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    	} else { //ellenkező esetben átadjuk az optional törzsét
-//    		return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
-//    	}
+//	//2. lépésben a swagger-ben lévő extra lekérdezéseket hozzuk létre, 
+//	//GET-nél iata, page, size-t hozzuk létre
+//	@GetMapping
+//	List<AirportDTO> getAirports(@RequestParam(name = "iata", required = false) String iata, Pageable pageable) { 
+//		//iata nevű argumentumot várunk, amit a String iata argumentumba kell betenni
+//		//pageable: paginálva, azaz oldalakra bontva tudjuk átadni az argumentum adatait
+//		
+//		//return Collections.emptyList(); //egy üres listát ad vissza a get kérésre
+//		return airportService.getAirports(iata, pageable); //itt hívjuk meg a service réteg metódusát
+//		
+//	}
+//	
+//	//New Airport-hoz hozzuk létre, lásd insomnia oldalon a POST airports részt, POST kérést hozunk létre
+//	@PostMapping
+//	AirportDTO createAirport(@RequestBody @Valid NewAirportDTO newAirport) { //AirportDTO-t ad vissza, paraméterként pedig NewAirportDTO-t vár
+//											//a @RequestBody annotációval aztjelezzük, hogy a kérés törzséből szedje ki az új airport-ot
+//											//a @Valid érvényre juttatja a DTO-ban létrehozott szabályokat, pl. a size-ot
+//		
+//		return airportService.createAirport(newAirport);
+//	
+//		//insomnia-ban ha POST-ot létrehozunk, akkor JSON-ban kiadhatjuk pl. a következőt:
+//		//{
+//		//	"name": "Szarajevó"
+//		//}
+//		
+//	}
+//	
+//	//az Airportot ID alapján kérdezzük le
+//	//a ResponseEntitiy-vel nem csak a törzset tudjuk megkapni, hanem a header-t és státuszkódot is
+//    @GetMapping("/{id}")
+//	ResponseEntity<AirportDTO> getAirportById(@PathVariable Long id) {
+//    					//a @PathVariable-vel az id-t tudjuk átadni
+//		
+//    	Optional<AirportDTO> optional = airportService.getAirportById(id);
+//		//az Optional-lal azt jelezzük, hogy nem biztos, hogy lesz olyan ID, amit megadunk
+//		
+//    	//erre nincs szükség akkor, ha külön osztályt készitünk az ExceptionHandler-re
+////    	if(optional == null) { //ha nincs ID, akkor NOT FOUND-dal tér vissza
+////    		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+////    	} else { //ellenkező esetben átadjuk az optional törzsét
+////    		return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
+////    	}
+////    	
 //    	
-    	
-    	return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
-    
-		
+//    	return ResponseEntity.status(HttpStatus.OK).body(optional.get()); 
+//    
+//		
+//	}
+	
+	
+	// 3. lépés az alábbi, itt a fentiekkel szemben már adatbázisból vesszük az adatokat, 
+	//ill. a DTO-k és az Airport közötti kapcsot is létrehozzuk
+	
+	//ez lesz a mappelő metódusunk
+	private AirportDTO mapAirportToDto(Airport airport) {
+		return new AirportDTO(airport.getId(), airport.getCreatedAt(), airport.getModifiedAt(), airport.getName(), airport.getIata());
+		//itt átszedjük az Airport attribútumait
 	}
 	
+	//itt már használjuk az előző mappelést
+	//ezt a map résznél tesszük meg, ahol meghivjuk a mapAirportToDto metódust
+	@GetMapping
+	List<AirportDTO> getAirports(@RequestParam(name = "iata", required = false) String iata, Pageable pageable) {
+		return airportService.getAirports(iata, pageable)
+				.stream()
+				.map(airport -> mapAirportToDto(airport)) //itt mappelünk
+				.collect(Collectors.toList());	//itt meg összegűjtjük és listába tesszük
+	}
+	
+	
+	@PostMapping
+	AirportDTO createAirport(@RequestBody @Valid NewAirportDTO newAirport) {
+		return mapAirportToDto(airportService.createAirport(newAirport));
+		//itt csak a mapAirportToDto-ba beágyazzuk a createAirport-ot
+	}
+	
+	@GetMapping("/{id}")
+	ResponseEntity<AirportDTO> getAirportById(@PathVariable Long id) {
+	    return ResponseEntity
+	    		.status(HttpStatus.OK)
+	    		.body(mapAirportToDto(airportService.getAirportById(id)));
+	    			//itt is  a mapAirportToDto-ba beágyazzuk a getAirport-ot
+	    
+	}	
+	
+	//POstMan-ban kell ezután futtatni és új adatot hozzátenni, lásd a doksiban
+	//org.postgresql.util.PSQLException: ERROR: relation "hibernate_sequence" does not exist
+
+	
+	//ezt is futtassuk tesztelésre: AirportControllerIT
 	
 }

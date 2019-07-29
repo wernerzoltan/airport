@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -21,6 +22,7 @@ import airport.web.dto.airport.NewAirportDTO;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) //beágyazott web container-t fogunk ezzel futtatni
 					//RANDOM_PORT = a szerver véletlenszerű porton fog elindulni
+@AutoConfigureTestDatabase // tesztelés futtatása során nem a properties-ben lévő adatbázisra tölt fel adatokat, hanem egy inmemmory db-t használ
 public class AirportControllerIT {
 	
 	private WebTestClient client; //ez a Spring reaktiv kliense (webflux)

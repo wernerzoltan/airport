@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 //ez az osztály lesz az összekötő kapocs az adatbázis mezők és a java között
@@ -14,7 +15,7 @@ import javax.persistence.Id;
 public class Airport {
 	
 	@Id
-	@GeneratedValue
+	@GeneratedValue//(strategy = GenerationType.AUTO)
 	private Long id;
 	private LocalDateTime createdAt;
 	private LocalDateTime modifiedAt;
